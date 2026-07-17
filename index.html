@@ -56,6 +56,12 @@
     color: var(--cream-200);
     opacity:.9;
   }
+  header p.visitor-count{
+    margin:12px 0 0;
+    font-size:.8rem;
+    color: var(--gold-300);
+    min-height:1.2em;
+  }
   main{
     max-width: 760px;
     margin: 0 auto;
@@ -267,6 +273,7 @@
     <h1>Conte a Benção</h1>
   </div>
   <p class="subtitle">Plano diário de leitura da Bíblia completa</p>
+  <p class="visitor-count" id="visitor-count"></p>
 </header>
 
 <main>
@@ -510,6 +517,14 @@
       updateProgressUI();
     }
   });
+
+  // ---- Contador de visitantes (exibido no cabeçalho) ----
+  fetch("https://abacus.jasoncameron.dev/hit/conteabencao/visitantes")
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      document.getElementById("visitor-count").textContent = "Você é o visitante nº " + data.value;
+    })
+    .catch(function(){ /* serviço de contagem indisponível: não exibe nada */ });
 
   // ---- Modal de leitura dos versículos ----
   var TRACK_LABELS = {
