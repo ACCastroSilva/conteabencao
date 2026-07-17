@@ -150,8 +150,77 @@
   }
   .day-tag.today{ background: var(--gold-500); color:#fff; }
   .readings{ font-size:.88rem; line-height:1.55; margin-bottom:10px; }
-  .readings div{ margin-bottom:2px; }
+  .readings div{ margin-bottom:2px; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px; }
   .readings b{ color: var(--brown-800); }
+  .read-link{
+    background:none;
+    border:none;
+    padding:0;
+    color: var(--green-600);
+    font-size:.82rem;
+    font-weight:600;
+    cursor:pointer;
+    text-decoration:underline;
+    font-family:inherit;
+  }
+  .read-link:hover{ color: var(--brown-800); }
+
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(43,33,23,.55);
+    z-index:200;
+    padding:24px 14px;
+    overflow-y:auto;
+  }
+  .modal-overlay.is-open{ display:block; }
+  .modal-box{
+    background:#fff;
+    max-width:640px;
+    margin:0 auto;
+    border-radius:16px;
+    padding:22px 24px 26px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.3);
+    position:relative;
+  }
+  .modal-close{
+    position:absolute;
+    top:14px;
+    right:16px;
+    background:none;
+    border:none;
+    font-size:1.4rem;
+    line-height:1;
+    cursor:pointer;
+    color: var(--brown-700);
+  }
+  .modal-title{
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--brown-800);
+    font-size:1.2rem;
+    margin:0 24px 14px 0;
+  }
+  .modal-body{ font-size:.95rem; line-height:1.7; }
+  .modal-body h3{
+    font-size:.95rem;
+    color: var(--gold-500);
+    background: var(--brown-800);
+    display:inline-block;
+    padding:3px 12px;
+    border-radius:999px;
+    margin:16px 0 8px;
+  }
+  .modal-body h3:first-child{ margin-top:0; }
+  .modal-body sup{ color: var(--brown-700); font-weight:700; margin-right:2px; }
+  .modal-status{ color: var(--brown-700); font-size:.9rem; }
+  .modal-fallback{
+    display:inline-block;
+    margin-top:14px;
+    color: var(--green-600);
+    font-weight:600;
+    text-decoration:underline;
+  }
   label.check{
     display:flex;
     align-items:center;
@@ -225,6 +294,14 @@
 
 <button id="jump-today" title="Ir para o dia de hoje">Hoje</button>
 
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <button class="modal-close" id="modal-close" aria-label="Fechar">&times;</button>
+    <h2 class="modal-title" id="modal-title"></h2>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
 <footer>
   Conte a Benção · leitura da Bíblia do início ao fim · dados salvos apenas neste navegador
 </footer>
@@ -293,21 +370,27 @@
     return start === end ? (book + " " + start) : (book + " " + start + "-" + end);
   }
 
-  function formatSlice(slice){
-    if (!slice || slice.length === 0) return "—";
-    var parts = [];
+  function groupRanges(slice){
+    if (!slice || slice.length === 0) return [];
+    var ranges = [];
     var curBook = slice[0].book, curStart = slice[0].chapter, curEnd = slice[0].chapter;
     for (var j = 1; j < slice.length; j++){
       var item = slice[j];
       if (item.book === curBook && item.chapter === curEnd + 1){
         curEnd = item.chapter;
       } else {
-        parts.push(formatRange(curBook, curStart, curEnd));
+        ranges.push({book:curBook, start:curStart, end:curEnd});
         curBook = item.book; curStart = item.chapter; curEnd = item.chapter;
       }
     }
-    parts.push(formatRange(curBook, curStart, curEnd));
-    return parts.join("; ");
+    ranges.push({book:curBook, start:curStart, end:curEnd});
+    return ranges;
+  }
+
+  function formatSlice(slice){
+    var ranges = groupRanges(slice);
+    if (ranges.length === 0) return "—";
+    return ranges.map(function(r){ return formatRange(r.book, r.start, r.end); }).join("; ");
   }
 
   function toISODate(d){
@@ -343,7 +426,10 @@
       date: date,
       nt: formatSlice(ntSlices[i]),
       wis: formatSlice(wisSlices[i]),
-      ot: formatSlice(otSlices[i])
+      ot: formatSlice(otSlices[i]),
+      ntRanges: groupRanges(ntSlices[i]),
+      wisRanges: groupRanges(wisSlices[i]),
+      otRanges: groupRanges(otSlices[i])
     });
   }
 
@@ -390,9 +476,9 @@
         tagHtml +
       '</div>' +
       '<div class="readings">' +
-        '<div><b>Novo Testamento:</b> ' + day.nt + '</div>' +
-        '<div><b>Salmos / Provérbios / Eclesiastes:</b> ' + day.wis + '</div>' +
-        '<div><b>Antigo Testamento:</b> ' + day.ot + '</div>' +
+        '<div><b>Novo Testamento:</b> ' + day.nt + ' <button type="button" class="read-link" data-iso="' + day.iso + '" data-track="nt">📖 ler</button></div>' +
+        '<div><b>Salmos / Provérbios / Eclesiastes:</b> ' + day.wis + ' <button type="button" class="read-link" data-iso="' + day.iso + '" data-track="wis">📖 ler</button></div>' +
+        '<div><b>Antigo Testamento:</b> ' + day.ot + ' <button type="button" class="read-link" data-iso="' + day.iso + '" data-track="ot">📖 ler</button></div>' +
       '</div>' +
       '<label class="check">' +
         '<input type="checkbox" data-iso="' + day.iso + '" ' + (progress[day.iso] ? "checked" : "") + '>' +
@@ -418,6 +504,109 @@
       }
       saveProgress(progress);
       updateProgressUI();
+    }
+  });
+
+  // ---- Modal de leitura dos versículos ----
+  var TRACK_LABELS = {
+    nt: "Novo Testamento",
+    wis: "Salmos / Provérbios / Eclesiastes",
+    ot: "Antigo Testamento"
+  };
+  var modalOverlay = document.getElementById("modal-overlay");
+  var modalTitle = document.getElementById("modal-title");
+  var modalBody = document.getElementById("modal-body");
+
+  function openModal(){ modalOverlay.classList.add("is-open"); }
+  function closeModal(){ modalOverlay.classList.remove("is-open"); modalBody.innerHTML = ""; }
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  modalOverlay.addEventListener("click", function(e){
+    if (e.target === modalOverlay) closeModal();
+  });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape" && modalOverlay.classList.contains("is-open")) closeModal();
+  });
+
+  function fetchChapter(book, chapter){
+    var url = "https://bible-api.com/" + encodeURIComponent(book + " " + chapter) + "?translation=almeida";
+    return fetch(url).then(function(res){ return res.json(); }).then(function(data){
+      if (data.error) throw new Error(data.error);
+      return data.verses;
+    });
+  }
+
+  function appendFallback(label){
+    var p = document.createElement("p");
+    var a = document.createElement("a");
+    a.className = "modal-fallback";
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.href = "https://www.biblegateway.com/passage/?search=" + encodeURIComponent(label) + "&version=ARC";
+    a.textContent = "Abrir esta leitura em outra Bíblia online ↗";
+    p.appendChild(a);
+    modalBody.appendChild(p);
+  }
+
+  function loadReading(iso, track){
+    var day = plan.filter(function(d){ return d.iso === iso; })[0];
+    if (!day) return;
+    var ranges = day[track + "Ranges"];
+    var label = day[track];
+
+    modalTitle.textContent = TRACK_LABELS[track] + " — " + formatDatePt(day.date);
+    modalBody.innerHTML = "";
+    var status = document.createElement("p");
+    status.className = "modal-status";
+    status.textContent = "Carregando " + label + "...";
+    modalBody.appendChild(status);
+    openModal();
+
+    var chapterJobs = [];
+    ranges.forEach(function(r){
+      for (var c = r.start; c <= r.end; c++){
+        chapterJobs.push({book:r.book, chapter:c});
+      }
+    });
+
+    if (chapterJobs.length === 0){
+      status.textContent = "Não há leitura desta trilha neste dia.";
+      return;
+    }
+
+    var i = 0;
+    function next(){
+      if (i >= chapterJobs.length){
+        if (status.parentNode) status.parentNode.removeChild(status);
+        return;
+      }
+      var job = chapterJobs[i++];
+      fetchChapter(job.book, job.chapter).then(function(verses){
+        if (status.parentNode) status.parentNode.removeChild(status);
+        var h3 = document.createElement("h3");
+        h3.textContent = job.book + " " + job.chapter;
+        modalBody.appendChild(h3);
+        var p = document.createElement("p");
+        verses.forEach(function(v){
+          var sup = document.createElement("sup");
+          sup.textContent = v.verse;
+          p.appendChild(sup);
+          p.appendChild(document.createTextNode(v.text.trim() + " "));
+        });
+        modalBody.appendChild(p);
+        modalBody.appendChild(status);
+        next();
+      }).catch(function(){
+        status.textContent = "Não foi possível carregar essa passagem agora.";
+        appendFallback(label);
+      });
+    }
+    next();
+  }
+
+  listEl.addEventListener("click", function(e){
+    var btn = e.target.closest && e.target.closest(".read-link");
+    if (btn){
+      loadReading(btn.getAttribute("data-iso"), btn.getAttribute("data-track"));
     }
   });
 
