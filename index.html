@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conte a Benção — Plano de Leitura Bíblica</title>
+<meta name="description" content="Plano diário de leitura da Bíblia completa, de hoje até 31 de dezembro.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23553C1F'/%3E%3Cpath d='M50 22c-8-8-24-8-30 0v46c6-6 22-6 30 2 8-8 24-8 30-2V22c-6-8-22-8-30 0z' fill='none' stroke='%23F2C879' stroke-width='4' stroke-linejoin='round'/%3E%3Cline x1='50' y1='22' x2='50' y2='70' stroke='%23F2C879' stroke-width='4'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --brown-900:#3B2A1A;
+    --brown-800:#553C1F;
+    --brown-700:#7A5A32;
+    --gold-500:#D9A441;
+    --gold-300:#F2C879;
+    --cream-100:#FBF4E4;
+    --cream-200:#F3E6C9;
+    --green-600:#4C7A50;
+    --ink:#2B2117;
+    --shadow: 0 4px 14px rgba(59,42,26,.15);
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(180deg,#FBF4E4 0%, #F3E6C9 100%);
+    color: var(--ink);
+    min-height:100vh;
+  }
+  header{
+    background: linear-gradient(135deg, var(--brown-900), var(--brown-800));
+    color: var(--cream-100);
+    padding: 28px 20px 34px;
+    text-align:center;
+    box-shadow: var(--shadow);
+  }
+  .logo-wrap{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .logo-wrap svg{ width:56px; height:56px; flex-shrink:0; }
+  header h1{
+    margin:0;
+    font-size:1.9rem;
+    letter-spacing:.5px;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--gold-300);
+  }
+  header p.subtitle{
+    margin:6px 0 0;
+    font-size:.95rem;
+    color: var(--cream-200);
+    opacity:.9;
+  }
+  main{
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 22px 16px 60px;
+  }
+  .progress-card{
+    background:#fff;
+    border-radius:16px;
+    padding:18px 20px;
+    box-shadow: var(--shadow);
+    margin-bottom:22px;
+  }
+  .progress-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .progress-top strong{ font-size:1.05rem; }
+  .progress-pct{
+    font-size:1.6rem;
+    font-weight:700;
+    color: var(--brown-800);
+  }
+  .progress-bar-outer{
+    width:100%;
+    height:14px;
+    background: var(--cream-200);
+    border-radius:999px;
+    overflow:hidden;
+  }
+  .progress-bar-inner{
+    height:100%;
+    background: linear-gradient(90deg, var(--gold-500), var(--green-600));
+    width:0%;
+    transition: width .4s ease;
+  }
+  .progress-meta{
+    display:flex;
+    justify-content:space-between;
+    font-size:.8rem;
+    color: var(--brown-700);
+    margin-top:8px;
+  }
+  .controls{
+    display:flex;
+    gap:10px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .controls button, .controls a{
+    border:none;
+    background: var(--brown-800);
+    color:#fff;
+    padding:9px 16px;
+    border-radius:999px;
+    font-size:.85rem;
+    cursor:pointer;
+    text-decoration:none;
+    box-shadow: var(--shadow);
+  }
+  .controls button.secondary{ background:#fff; color:var(--brown-800); border:1px solid var(--brown-700); }
+  .day-card{
+    background:#fff;
+    border-radius:14px;
+    padding:16px 18px;
+    margin-bottom:12px;
+    box-shadow: 0 2px 8px rgba(59,42,26,.08);
+    border-left: 6px solid var(--cream-200);
+    transition: border-color .2s ease, opacity .2s ease;
+  }
+  .day-card.is-today{ border-left-color: var(--gold-500); }
+  .day-card.is-done{ opacity:.6; }
+  .day-card.is-past:not(.is-done){ border-left-color:#C4694A; }
+  .day-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .day-date{ font-weight:700; font-size:.95rem; }
+  .day-tag{
+    font-size:.7rem;
+    background: var(--cream-200);
+    color: var(--brown-800);
+    padding:2px 9px;
+    border-radius:999px;
+    font-weight:600;
+  }
+  .day-tag.today{ background: var(--gold-500); color:#fff; }
+  .readings{ font-size:.88rem; line-height:1.55; margin-bottom:10px; }
+  .readings div{ margin-bottom:2px; }
+  .readings b{ color: var(--brown-800); }
+  label.check{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:.85rem;
+    cursor:pointer;
+    user-select:none;
+    color: var(--brown-800);
+    font-weight:600;
+  }
+  label.check input{ width:18px; height:18px; accent-color: var(--green-600); cursor:pointer; }
+  footer{
+    text-align:center;
+    padding:20px;
+    font-size:.78rem;
+    color: var(--brown-700);
+  }
+  #jump-today{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background: var(--gold-500);
+    color:#fff;
+    border:none;
+    border-radius:999px;
+    padding:12px 18px;
+    font-size:.85rem;
+    box-shadow: var(--shadow);
+    cursor:pointer;
+    z-index:50;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Logo Conte a Benção">
+      <rect width="100" height="100" rx="20" fill="#3B2A1A"/>
+      <path d="M50 22c-8-8-24-8-30 0v46c6-6 22-6 30 2 8-8 24-8 30-2V22c-6-8-22-8-30 0z" fill="none" stroke="#F2C879" stroke-width="4" stroke-linejoin="round"/>
+      <line x1="50" y1="22" x2="50" y2="70" stroke="#F2C879" stroke-width="4"/>
+      <path d="M50 10c-4 6-4 10 0 14 4-4 4-8 0-14z" fill="#D9A441"/>
+    </svg>
+    <h1>Conte a Benção</h1>
+  </div>
+  <p class="subtitle">Plano diário de leitura da Bíblia completa</p>
+</header>
+
+<main>
+  <section class="progress-card">
+    <div class="progress-top">
+      <strong>Sua jornada de leitura</strong>
+      <span class="progress-pct" id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progress-bar"></div>
+    </div>
+    <div class="progress-meta">
+      <span id="progress-days">0 de 0 dias concluídos</span>
+      <span id="progress-range"></span>
+    </div>
+  </section>
+
+  <div class="controls">
+    <button id="scroll-today">Ir para hoje</button>
+    <button class="secondary" id="reset-progress">Reiniciar progresso</button>
+  </div>
+
+  <div id="plan-list"></div>
+</main>
+
+<button id="jump-today" title="Ir para o dia de hoje">Hoje</button>
+
+<footer>
+  Conte a Benção · leitura da Bíblia do início ao fim · dados salvos apenas neste navegador
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---- Configuração fixa do cronograma ----
+  var START_DATE = new Date(2026, 6, 17); // 17 de julho de 2026
+  var END_DATE   = new Date(2026, 11, 31); // 31 de dezembro de 2026
+  var STORAGE_KEY = "conte-a-bencao-progresso-v1";
+
+  // ---- Livros da Bíblia (nome, capítulos) ----
+  var OT_BOOKS = [
+    ["Gênesis",50],["Êxodo",40],["Levítico",27],["Números",36],["Deuteronômio",34],
+    ["Josué",24],["Juízes",21],["Rute",4],["1 Samuel",31],["2 Samuel",24],
+    ["1 Reis",22],["2 Reis",25],["1 Crônicas",29],["2 Crônicas",36],["Esdras",10],
+    ["Neemias",13],["Ester",10],["Jó",42],
+    // Salmos, Provérbios e Eclesiastes ficam em trilha separada (não incluídos aqui)
+    ["Cantares",8],["Isaías",66],["Jeremias",52],["Lamentações",5],["Ezequiel",48],
+    ["Daniel",12],["Oséias",14],["Joel",3],["Amós",9],["Obadias",1],["Jonas",4],
+    ["Miquéias",7],["Naum",3],["Habacuque",3],["Sofonias",3],["Ageu",2],
+    ["Zacarias",14],["Malaquias",4]
+  ];
+  var WISDOM_BOOKS = [
+    ["Salmos",150],["Provérbios",31],["Eclesiastes",12]
+  ];
+  var NT_BOOKS = [
+    ["Mateus",28],["Marcos",16],["Lucas",24],["João",21],["Atos",28],
+    ["Romanos",16],["1 Coríntios",16],["2 Coríntios",13],["Gálatas",6],
+    ["Efésios",6],["Filipenses",4],["Colossenses",4],["1 Tessalonicenses",5],
+    ["2 Tessalonicenses",3],["1 Timóteo",6],["2 Timóteo",4],["Tito",3],
+    ["Filemom",1],["Hebreus",13],["Tiago",5],["1 Pedro",5],["2 Pedro",3],
+    ["1 João",5],["2 João",1],["3 João",1],["Judas",1],["Apocalipse",22]
+  ];
+
+  function buildFlatList(books){
+    var list = [];
+    books.forEach(function(b){
+      var name = b[0], chapters = b[1];
+      for (var c = 1; c <= chapters; c++){
+        list.push({book:name, chapter:c});
+      }
+    });
+    return list;
+  }
+
+  function daysBetweenInclusive(start, end){
+    var msPerDay = 1000*60*60*24;
+    return Math.round((end - start)/msPerDay) + 1;
+  }
+
+  function distribute(flatList, days){
+    var result = [];
+    var prevEnd = 0;
+    for (var i = 1; i <= days; i++){
+      var end = Math.round((i * flatList.length) / days);
+      result.push(flatList.slice(prevEnd, end));
+      prevEnd = end;
+    }
+    return result;
+  }
+
+  function formatRange(book, start, end){
+    return start === end ? (book + " " + start) : (book + " " + start + "-" + end);
+  }
+
+  function formatSlice(slice){
+    if (!slice || slice.length === 0) return "—";
+    var parts = [];
+    var curBook = slice[0].book, curStart = slice[0].chapter, curEnd = slice[0].chapter;
+    for (var j = 1; j < slice.length; j++){
+      var item = slice[j];
+      if (item.book === curBook && item.chapter === curEnd + 1){
+        curEnd = item.chapter;
+      } else {
+        parts.push(formatRange(curBook, curStart, curEnd));
+        curBook = item.book; curStart = item.chapter; curEnd = item.chapter;
+      }
+    }
+    parts.push(formatRange(curBook, curStart, curEnd));
+    return parts.join("; ");
+  }
+
+  function toISODate(d){
+    var y = d.getFullYear();
+    var m = String(d.getMonth()+1).padStart(2,"0");
+    var day = String(d.getDate()).padStart(2,"0");
+    return y + "-" + m + "-" + day;
+  }
+
+  function formatDatePt(d){
+    var dias = ["domingo","segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado"];
+    var meses = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+    return dias[d.getDay()].charAt(0).toUpperCase()+dias[d.getDay()].slice(1) + ", " + d.getDate() + " de " + meses[d.getMonth()] + " de " + d.getFullYear();
+  }
+
+  // ---- Gera o cronograma completo ----
+  var totalDays = daysBetweenInclusive(START_DATE, END_DATE);
+
+  var ntFlat = buildFlatList(NT_BOOKS);
+  var otFlat = buildFlatList(OT_BOOKS);
+  var wisFlat = buildFlatList(WISDOM_BOOKS);
+
+  var ntSlices = distribute(ntFlat, totalDays);
+  var otSlices = distribute(otFlat, totalDays);
+  var wisSlices = distribute(wisFlat, totalDays);
+
+  var plan = [];
+  for (var i = 0; i < totalDays; i++){
+    var date = new Date(START_DATE);
+    date.setDate(date.getDate() + i);
+    plan.push({
+      iso: toISODate(date),
+      date: date,
+      nt: formatSlice(ntSlices[i]),
+      wis: formatSlice(wisSlices[i]),
+      ot: formatSlice(otSlices[i])
+    });
+  }
+
+  // ---- Progresso salvo no navegador ----
+  function loadProgress(){
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch(e){ return {}; }
+  }
+  function saveProgress(progress){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  }
+  var progress = loadProgress();
+
+  function updateProgressUI(){
+    var doneCount = 0;
+    plan.forEach(function(day){ if (progress[day.iso]) doneCount++; });
+    var pct = totalDays > 0 ? Math.round((doneCount/totalDays)*1000)/10 : 0;
+    document.getElementById("progress-pct").textContent = pct + "%";
+    document.getElementById("progress-bar").style.width = pct + "%";
+    document.getElementById("progress-days").textContent = doneCount + " de " + totalDays + " dias concluídos";
+    document.getElementById("progress-range").textContent = formatDatePt(START_DATE).split(",")[1] + " até 31 de dezembro de 2026";
+  }
+
+  // ---- Renderização ----
+  var todayISO = toISODate(new Date());
+  var listEl = document.getElementById("plan-list");
+  var frag = document.createDocumentFragment();
+
+  plan.forEach(function(day){
+    var card = document.createElement("div");
+    card.className = "day-card";
+    card.id = "day-" + day.iso;
+    if (day.iso === todayISO) card.classList.add("is-today");
+    if (day.date < new Date(new Date().toDateString())) card.classList.add("is-past");
+    if (progress[day.iso]) card.classList.add("is-done");
+
+    var tagHtml = day.iso === todayISO ? '<span class="day-tag today">HOJE</span>' : '';
+
+    card.innerHTML =
+      '<div class="day-head">' +
+        '<span class="day-date">' + formatDatePt(day.date) + '</span>' +
+        tagHtml +
+      '</div>' +
+      '<div class="readings">' +
+        '<div><b>Novo Testamento:</b> ' + day.nt + '</div>' +
+        '<div><b>Salmos / Provérbios / Eclesiastes:</b> ' + day.wis + '</div>' +
+        '<div><b>Antigo Testamento:</b> ' + day.ot + '</div>' +
+      '</div>' +
+      '<label class="check">' +
+        '<input type="checkbox" data-iso="' + day.iso + '" ' + (progress[day.iso] ? "checked" : "") + '>' +
+        ' Marquei essa leitura como concluída' +
+      '</label>';
+
+    frag.appendChild(card);
+  });
+
+  listEl.appendChild(frag);
+  updateProgressUI();
+
+  listEl.addEventListener("change", function(e){
+    if (e.target && e.target.matches('input[type="checkbox"]')){
+      var iso = e.target.getAttribute("data-iso");
+      var card = document.getElementById("day-" + iso);
+      if (e.target.checked){
+        progress[iso] = true;
+        card.classList.add("is-done");
+      } else {
+        delete progress[iso];
+        card.classList.remove("is-done");
+      }
+      saveProgress(progress);
+      updateProgressUI();
+    }
+  });
+
+  function scrollToToday(){
+    var el = document.getElementById("day-" + todayISO);
+    if (el) el.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+  document.getElementById("scroll-today").addEventListener("click", scrollToToday);
+  document.getElementById("jump-today").addEventListener("click", scrollToToday);
+
+  document.getElementById("reset-progress").addEventListener("click", function(){
+    if (confirm("Tem certeza que deseja reiniciar todo o progresso de leitura?")){
+      progress = {};
+      saveProgress(progress);
+      document.querySelectorAll('.day-card').forEach(function(c){ c.classList.remove("is-done"); });
+      document.querySelectorAll('input[type="checkbox"]').forEach(function(cb){ cb.checked = false; });
+      updateProgressUI();
+    }
+  });
+
+  // Rola até hoje ao carregar, se existir no plano
+  if (document.getElementById("day-" + todayISO)){
+    setTimeout(scrollToToday, 300);
+  }
+})();
+</script>
+
+</body>
+</html>
